@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Justin Braden — Computer Technician</title>
+<meta name="description" content="Justin Braden — Computer Technician specializing in network administration, cybersecurity, and IT infrastructure. CompTIA Network+ and Security+ certified."/>
+<meta property="og:title" content="Justin Braden — Computer Technician"/>
+<meta property="og:description" content="Network administration, cybersecurity, and IT infrastructure. CompTIA Network+ and Security+ certified."/>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2305070d'/%3E%3Ctext x='32' y='44' font-family='Segoe UI,Arial,sans-serif' font-size='34' font-weight='700' fill='%2338bdf8' text-anchor='middle'%3EJB%3C/text%3E%3C/svg%3E"/>
+<style>
+  :root{ --accent:#38bdf8; --accent2:#7dd3fc; --violet:#8b5cf6; --text:#eef2ff; --muted:#93a0c0; --border:rgba(255,255,255,0.1); --glass:rgba(13,19,32,0.55); }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:radial-gradient(ellipse at 50% 0%,#0a1226 0%,#04060c 60%);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;line-height:1.6;overflow-x:hidden;transition:background .5s;}
+
+  #loader{position:fixed;inset:0;z-index:1000;background:#04060c;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.2rem;transition:opacity .8s;}
+  #loader.hide{opacity:0;pointer-events:none;}
+  .loader-logo{font-size:2rem;font-weight:800;letter-spacing:.1em;background:linear-gradient(135deg,var(--accent2),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  .loader-bar{width:200px;height:3px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden;}
+  .loader-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--violet),var(--accent));transition:width .3s;}
+  .loader-text{font-size:0.78rem;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;}
+
+  #scene{position:fixed;inset:0;width:100vw;height:100vh;z-index:1;}
+  .vignette{position:fixed;inset:0;z-index:2;pointer-events:none;background:radial-gradient(ellipse at center,transparent 55%,rgba(4,6,12,0.5) 100%);}
+  .grain{position:fixed;inset:0;z-index:2;pointer-events:none;opacity:0.04;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:180px 180px;}
+
+  header{position:fixed;top:0;left:0;right:0;z-index:60;display:flex;align-items:center;justify-content:space-between;padding:1.2rem 2rem;}
+  .logo{font-weight:800;font-size:1.15rem;letter-spacing:.05em;background:linear-gradient(135deg,var(--accent2),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;opacity:0;transition:opacity .35s;}
+  .head-right{display:flex;gap:1.2rem;align-items:center;}
+  .head-link{color:var(--muted);text-decoration:none;font-size:0.85rem;transition:color .2s,opacity .35s;opacity:0;}
+  .head-link:hover{color:var(--text);}
+  .gear{background:none;border:1px solid var(--border);color:var(--muted);width:36px;height:36px;border-radius:9px;cursor:pointer;font-size:1rem;transition:all .2s;}
+  .gear:hover{color:var(--text);border-color:var(--accent);}
+
+  .tp-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:80;opacity:0;pointer-events:none;transition:opacity .3s;}
+  .tp-overlay.open{opacity:1;pointer-events:all;}
+  .tp{position:fixed;top:0;right:0;bottom:0;width:300px;background:#0a0e18;border-left:1px solid var(--border);z-index:81;padding:2rem 1.5rem;transform:translateX(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);}
+  .tp.open{transform:translateX(0);}
+  .tp h3{font-size:1rem;margin-bottom:1.4rem;}
+  .tp-close{position:absolute;top:1.2rem;right:1.3rem;background:none;border:none;color:var(--muted);font-size:1.3rem;cursor:pointer;}
+  .tp-label{font-size:0.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:1rem 0 .7rem;display:block;}
+  .tp-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .tp-swatch{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:9px;border:1px solid var(--border);background:rgba(255,255,255,0.03);cursor:pointer;font-size:0.8rem;color:var(--text);transition:border-color .2s;}
+  .tp-swatch:hover{border-color:var(--accent);}
+  .tp-dot{width:16px;height:16px;border-radius:50%;flex-shrink:0;}
+
+  #track{position:relative;z-index:10;height:780vh;pointer-events:none;}
+  .layer{position:fixed;z-index:30;pointer-events:none;opacity:0;transition:opacity .15s linear;}
+
+  #hero{inset:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;text-align:center;padding:5.5rem 2rem 0;}
+  .hero-tag{display:inline-block;background:var(--glass);backdrop-filter:blur(8px);border:1px solid var(--border);border-radius:100px;padding:5px 16px;font-size:0.75rem;color:var(--accent2);margin-bottom:1rem;letter-spacing:.1em;text-transform:uppercase;}
+  #hero h1{font-size:clamp(2.3rem,6vw,4.6rem);font-weight:800;line-height:1.05;letter-spacing:-.02em;}
+  #hero h1 span{background:linear-gradient(135deg,var(--text) 20%,var(--accent) 90%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  .typing-wrap{font-size:clamp(1rem,2.3vw,1.5rem);font-weight:600;color:var(--accent2);margin-top:.8rem;min-height:2rem;}
+  .typing-cursor{display:inline-block;width:2px;height:1.05em;background:var(--accent);margin-left:3px;vertical-align:middle;animation:blink 1s step-end infinite;}
+  @keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+  .scroll-hint{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:30;color:var(--muted);font-size:0.75rem;letter-spacing:.2em;text-transform:uppercase;text-align:center;opacity:0;transition:opacity .3s;}
+  .scroll-hint .mouse{width:22px;height:36px;border:2px solid var(--muted);border-radius:12px;margin:0 auto 8px;position:relative;}
+  .scroll-hint .mouse::before{content:'';position:absolute;top:6px;left:50%;transform:translateX(-50%);width:3px;height:7px;background:var(--accent);border-radius:2px;animation:wheel 1.5s infinite;}
+  @keyframes wheel{0%{opacity:1;top:6px;}100%{opacity:0;top:16px;}}
+
+  #compLabel{top:50%;left:6%;transform:translateY(-50%);max-width:340px;text-align:left;}
+  #compLabel.right{left:auto;right:6%;}
+  .comp-index{font-size:0.74rem;color:var(--accent);letter-spacing:.22em;font-weight:700;}
+  .comp-name{font-size:clamp(1.9rem,4.5vw,3rem);font-weight:800;margin:.35rem 0 .6rem;letter-spacing:-.01em;}
+  .comp-desc{font-size:1rem;color:var(--muted);}
+
+  #resumeCta{bottom:38px;left:50%;transform:translateX(-50%);text-align:center;}
+  #resumeCta .micro{font-size:0.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--accent2);margin-bottom:.6rem;}
+  .btn{background:var(--accent);color:#04060c;padding:14px 34px;border-radius:12px;border:none;font-weight:700;font-size:0.98rem;cursor:pointer;font-family:inherit;transition:transform .2s,box-shadow .2s;box-shadow:0 6px 30px rgba(56,189,248,0.35);}
+  .btn:hover{transform:translateY(-3px);box-shadow:0 10px 40px rgba(56,189,248,0.5);}
+
+  #projects{right:0;top:0;bottom:0;width:min(440px,86vw);padding:5rem 2rem 2rem;display:flex;flex-direction:column;justify-content:center;gap:1rem;background:linear-gradient(90deg,transparent,rgba(4,6,12,0.72) 22%);transform:translateX(40px);transition:opacity .15s linear,transform .4s ease;}
+  #projects.shown{transform:translateX(0);}
+  .proj-head{font-size:0.78rem;letter-spacing:.25em;text-transform:uppercase;color:var(--accent);}
+  .proj-title{font-size:1.9rem;font-weight:800;margin-bottom:.4rem;}
+  .proj-card{background:var(--glass);backdrop-filter:blur(10px);border:1px solid var(--border);border-radius:14px;padding:1.1rem 1.2rem;transition:border-color .2s,transform .2s;pointer-events:auto;}
+  .proj-card:hover{border-color:var(--accent);transform:translateX(-5px);}
+  .proj-card h4{font-size:1rem;font-weight:700;margin-bottom:.25rem;display:flex;align-items:center;gap:.5rem;}
+  .proj-card p{font-size:0.85rem;color:var(--muted);}
+  .proj-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:.6rem;}
+  .proj-tag{font-size:0.68rem;background:rgba(56,189,248,0.12);color:var(--accent2);padding:2px 8px;border-radius:5px;}
+  .proj-status{font-size:0.58rem;background:var(--accent);color:#04060c;padding:3px 9px;border-radius:100px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;}
+
+  #contact{inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2rem;}
+  #contact h2{font-size:clamp(2rem,5vw,3.4rem);font-weight:800;margin-bottom:1rem;}
+  #contact p{color:var(--muted);max-width:440px;margin-bottom:2rem;}
+  .contact-actions{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;align-items:center;pointer-events:auto;}
+  .contact-links{display:flex;gap:1.5rem;margin-top:1.6rem;}
+  .contact-links a{color:var(--muted);text-decoration:none;font-size:0.9rem;transition:color .2s;}
+  .contact-links a:hover{color:var(--accent2);}
+  .copy-btn{background:transparent;border:1px solid var(--border);color:var(--accent2);padding:13px 22px;border-radius:12px;cursor:pointer;font-size:0.92rem;font-family:inherit;transition:all .2s;}
+  .copy-btn:hover{border-color:var(--accent);color:var(--text);}
+  .copy-btn.copied{color:#4ade80;border-color:#4ade80;}
+
+  .progress{position:fixed;top:0;left:0;height:3px;width:0%;background:linear-gradient(90deg,var(--violet),var(--accent));z-index:70;}
+  #resumeCta .btn,#hero .hero-tag{pointer-events:auto;}
+  @media(max-width:680px){ #compLabel{left:5%;right:5%;max-width:none;} #projects{width:100vw;background:linear-gradient(180deg,transparent,rgba(4,6,12,0.85) 30%);} }
+</style>
+</head>
+<body>
+
+<div id="loader">
+  <div class="loader-logo">JB</div>
+  <div class="loader-bar"><div class="loader-fill" id="loaderFill"></div></div>
+  <div class="loader-text">Booting system…</div>
+</div>
+
+<canvas id="scene"></canvas>
+<div class="vignette"></div>
+<div class="grain"></div>
+<div class="progress" id="progress"></div>
+
+<header>
+  <div class="logo" id="logo">JUSTIN BRADEN</div>
+  <div class="head-right">
+    <a href="mailto:Justinbraden99@gmail.com" class="head-link" id="headEmail">Justinbraden99@gmail.com</a>
+    <button class="gear" onclick="openTP()" aria-label="Theme">⚙</button>
+  </div>
+</header>
+
+<div class="tp-overlay" id="tpOverlay" onclick="closeTP()"></div>
+<div class="tp" id="tp">
+  <button class="tp-close" onclick="closeTP()">✕</button>
+  <h3>⚙ Theme</h3>
+  <span class="tp-label">Dark</span>
+  <div class="tp-grid" id="darkGrid"></div>
+  <span class="tp-label">Light</span>
+  <div class="tp-grid" id="lightGrid"></div>
+</div>
+
+<div class="layer" id="hero">
+  <div class="hero-tag">Open to New Opportunities</div>
+  <h1>Hi, I'm <span>Justin Braden</span></h1>
+  <div class="typing-wrap"><span id="typingText"></span><span class="typing-cursor"></span></div>
+</div>
+<div class="scroll-hint" id="scrollHint"><div class="mouse"></div>Scroll to explore</div>
+
+<div class="layer" id="compLabel">
+  <div class="comp-index" id="compIndex">01</div>
+  <div class="comp-name" id="compName">Component</div>
+  <div class="comp-desc" id="compDesc">Description</div>
+</div>
+
+<div class="layer" id="resumeCta">
+  <div class="micro">Fast Recall · Grab My Résumé</div>
+  <button class="btn" onclick="downloadResume()">⤓ Download Résumé</button>
+</div>
+
+<div class="layer" id="projects">
+  <div class="proj-head">NVMe Storage · Saved Work</div>
+  <div class="proj-title">Projects</div>
+  <div class="proj-card">
+    <h4>🎮 Roguelike Mobile Game <span class="proj-status">In Progress</span></h4>
+    <p>Currently collaborating with a small development team to design and build a roguelike mobile game. Contributing across gameplay systems, procedurally generated runs, and iterative playtesting, with an emphasis on high replayability and smooth, performance-conscious gameplay on mobile devices.</p>
+    <div class="proj-tags"><span class="proj-tag">Game Dev</span><span class="proj-tag">Mobile</span><span class="proj-tag">Collaboration</span></div>
+  </div>
+  <div class="proj-card">
+    <h4>💻 MooveIT</h4>
+    <p>A custom utility I built to streamline user profile migration and data copying between laptops, automating a normally slow and error-prone manual process. Designed to minimize downtime during device refreshes, reimaging, and hardware swaps, it reliably transfers user profiles, settings, and files with minimal technician intervention.</p>
+    <div class="proj-tags"><span class="proj-tag">Automation</span><span class="proj-tag">Migration</span><span class="proj-tag">IT Tooling</span></div>
+  </div>
+  <div class="proj-card">
+    <h4>🖨️ Printer Deployment Builder</h4>
+    <p>A deployment tool that packages pre-configured printers into a single, portable executable. Technicians configure the required printers once, then generate a self-contained installer that automatically provisions them on any Windows machine — dramatically faster than manual driver installation, with no per-device setup required.</p>
+    <div class="proj-tags"><span class="proj-tag">Automation</span><span class="proj-tag">Deployment</span><span class="proj-tag">Windows</span></div>
+  </div>
+</div>
+
+<div class="layer" id="contact">
+  <h2>Let's build something secure.</h2>
+  <p>Open to new IT opportunities in networking, security, and systems administration.</p>
+  <div class="contact-actions">
+    <button class="btn" id="copyBtn" onclick="copyEmail()">Copy Email ✉</button>
+  </div>
+  <div class="contact-links">
+    <a href="#" target="_blank">LinkedIn</a>
+    <a href="#" target="_blank">GitHub</a>
+  </div>
+</div>
+
+<div id="track"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const VIOLET=0x8b5cf6, GREEN=0x22c55e;
+let scene,camera,renderer,clock;
+const parts=[]; let fans=[], raindrops=[], glassPanels=[], bubbles=[], fanRings=[], caseParts=[], caseMats=[];
+let accentMats=[], accent2Mats=[], accentLights=[], screenCanvas, screenCtx, screenTex;
+let ready=false, curAccent='#38bdf8';
+
+function v(x,y,z){ return new THREE.Vector3(x,y,z); }
+function basic(color){ return new THREE.MeshBasicMaterial({color}); }
+function chrome(){ return new THREE.MeshStandardMaterial({color:0xcfd6df,metalness:1,roughness:0.15}); }
+function makeBox(w,h,d,color,o={}){ return new THREE.Mesh(new THREE.BoxGeometry(w,h,d),new THREE.MeshStandardMaterial({color,metalness:o.metal??0.6,roughness:o.rough??0.4,emissive:o.emissive??0x000000,emissiveIntensity:o.ei??1,transparent:o.transparent??false,opacity:o.opacity??1})); }
+
+function fanBladeShape(r){
+  const s=new THREE.Shape(); const inR=0.2*r, outR=0.97*r, sweep=0.85, w=0.62; const lead=[],trail=[];
+  for(let i=0;i<=10;i++){ const f=i/10,rad=inR+(outR-inR)*f,a=sweep*f; lead.push([Math.cos(a)*rad,Math.sin(a)*rad]); }
+  for(let i=0;i<=10;i++){ const f=i/10,rad=inR+(outR-inR)*f,a=sweep*f-w*(0.35+0.65*f); trail.push([Math.cos(a)*rad,Math.sin(a)*rad]); }
+  s.moveTo(lead[0][0],lead[0][1]); for(let i=1;i<lead.length;i++) s.lineTo(lead[i][0],lead[i][1]);
+  for(let i=trail.length-1;i>=0;i--) s.lineTo(trail[i][0],trail[i][1]); s.closePath(); return s;
+}
+function makeFan(r,glowColor){
+  const g=new THREE.Group();
+  const ring=new THREE.Mesh(new THREE.TorusGeometry(r,r*0.09,12,32),new THREE.MeshStandardMaterial({color:0x14181f,metalness:0.7,roughness:0.4})); ring.rotation.x=Math.PI/2; g.add(ring);
+  const glowMat=basic(glowColor); const glow=new THREE.Mesh(new THREE.TorusGeometry(r,r*0.04,8,32),glowMat); glow.rotation.x=Math.PI/2; g.add(glow);
+  const hub=new THREE.Group();
+  const cap=new THREE.Mesh(new THREE.CylinderGeometry(r*0.22,r*0.26,r*0.14,20),new THREE.MeshStandardMaterial({color:0x0a0c10,metalness:0.6,roughness:0.4})); cap.position.y=0.02; hub.add(cap);
+  const bladeMat=new THREE.MeshStandardMaterial({color:0x1c2028,metalness:0.35,roughness:0.55,side:THREE.DoubleSide});
+  const geo=new THREE.ExtrudeGeometry(fanBladeShape(r),{depth:0.012,bevelEnabled:false});
+  for(let i=0;i<9;i++){ const blade=new THREE.Mesh(geo,bladeMat); blade.rotation.x=-Math.PI/2; const bg=new THREE.Group(); bg.add(blade); bg.rotation.y=i/9*Math.PI*2; hub.add(bg); }
+  g.add(hub); fans.push(hub); return {group:g, glow:glowMat};
+}
+function register(obj,home,exploded){ obj.position.copy(home); parts.push({obj,home:home.clone(),exploded:exploded.clone()}); scene.add(obj); return obj; }
+
+/* Top case fan: black square frame, black blades, no lighting */
+function makeTopFan(r){
+  const g=new THREE.Group();
+  const frameMat=new THREE.MeshStandardMaterial({color:0x16191f,metalness:0.5,roughness:0.5});
+  const fw=r*1.04, bt=0.07;
+  [[0,fw],[0,-fw]].forEach(([x,z])=>{ const bar=new THREE.Mesh(new THREE.BoxGeometry(fw*2+bt,0.09,bt),frameMat); bar.position.set(x,0,z); g.add(bar); });
+  [[fw,0],[-fw,0]].forEach(([x,z])=>{ const bar=new THREE.Mesh(new THREE.BoxGeometry(bt,0.09,fw*2+bt),frameMat); bar.position.set(x,0,z); g.add(bar); });
+  const hub=new THREE.Group();
+  hub.add(new THREE.Mesh(new THREE.CylinderGeometry(r*0.2,r*0.22,0.1,18),new THREE.MeshStandardMaterial({color:0x0a0c10,metalness:0.6,roughness:0.4})));
+  const bladeMat=new THREE.MeshStandardMaterial({color:0x1c2028,metalness:0.3,roughness:0.55,side:THREE.DoubleSide});
+  const geo=new THREE.ExtrudeGeometry(fanBladeShape(r*0.86),{depth:0.01,bevelEnabled:false});
+  for(let i=0;i<9;i++){ const bl=new THREE.Mesh(geo,bladeMat); bl.rotation.x=-Math.PI/2; const bg=new THREE.Group(); bg.add(bl); bg.rotation.y=i/9*Math.PI*2; hub.add(bg); }
+  g.add(hub); fans.push(hub);
+  return g;
+}
+
+function buildScene(){
+  scene=new THREE.Scene(); scene.fog=new THREE.FogExp2(0x04060c,0.03);
+  camera=new THREE.PerspectiveCamera(50,innerWidth/innerHeight,0.1,100); camera.position.set(-1.8,2.6,10);
+  renderer=new THREE.WebGLRenderer({canvas:document.getElementById('scene'),antialias:true,alpha:true});
+  renderer.setSize(innerWidth,innerHeight); renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  clock=new THREE.Clock();
+
+  scene.add(new THREE.AmbientLight(0x55657f,0.9));
+  const key=new THREE.DirectionalLight(0xdde8ff,1.0); key.position.set(5,8,6); scene.add(key);
+  const rim=new THREE.DirectionalLight(VIOLET,0.6); rim.position.set(-6,3,-4); scene.add(rim);
+  const p1=new THREE.PointLight(0x38bdf8,1.7,18); p1.position.set(1.6,2.0,2.6); scene.add(p1); accentLights.push(p1);
+  const p2=new THREE.PointLight(VIOLET,0.8,12); p2.position.set(-2,1,2); scene.add(p2);
+
+  const desk=new THREE.Mesh(new THREE.BoxGeometry(24,0.3,9),new THREE.MeshStandardMaterial({color:0x0b0f18,metalness:0.3,roughness:0.85})); desk.position.set(0,-0.15,0); scene.add(desk);
+  const deskStrip=basic(0x38bdf8); accentMats.push(deskStrip);
+  const strip=new THREE.Mesh(new THREE.PlaneGeometry(24,0.05),deskStrip); strip.position.set(0,0.02,4.5); strip.rotation.x=-Math.PI/2; scene.add(strip);
+
+  // MONITOR
+  const mon=new THREE.Group(); mon.add(makeBox(4.2,2.5,0.12,0x0a0c12,{metal:0.8,rough:0.3}));
+  screenCanvas=document.createElement('canvas'); screenCanvas.width=1024; screenCanvas.height=600; screenCtx=screenCanvas.getContext('2d'); drawScreen();
+  screenTex=new THREE.CanvasTexture(screenCanvas);
+  const screen=new THREE.Mesh(new THREE.PlaneGeometry(3.95,2.25),new THREE.MeshBasicMaterial({map:screenTex})); screen.position.z=0.07; mon.add(screen);
+  const neck=makeBox(0.25,0.7,0.25,0x0a0c12); neck.position.y=-1.55; mon.add(neck);
+  const base2=makeBox(1.4,0.08,0.7,0x0a0c12); base2.position.y=-1.9; mon.add(base2);
+  mon.position.set(-3.2,2.0,-0.6); mon.rotation.y=0.32; scene.add(mon);
+
+  const TX=1.7;
+  // ===== HYTE-STYLE WHITE FRAME (explodes + fades with the components) =====
+  const white=new THREE.MeshStandardMaterial({color:0xf2f4f8,metalness:0.25,roughness:0.45,transparent:true});
+  const blackEdge=new THREE.MeshStandardMaterial({color:0x15171c,metalness:0.5,roughness:0.4,transparent:true});
+  const HW=1.55; // half width
+  const caseCenter=v(TX,2.1,0);
+  function regFrame(mesh){ if(caseMats.indexOf(mesh.material)<0){ mesh.material.transparent=true; caseMats.push(mesh.material); } const home=mesh.position.clone(); const exploded=caseCenter.clone().add(home.clone().sub(caseCenter).multiplyScalar(2.1)); caseParts.push({obj:mesh,home,exploded}); scene.add(mesh); }
+  const fbase=new THREE.Mesh(new THREE.BoxGeometry(HW*2+0.15,0.22,3.5),white); fbase.position.set(TX,0.0,0); regFrame(fbase);
+  const ftop=new THREE.Mesh(new THREE.BoxGeometry(HW*2+0.15,0.22,3.5),white); ftop.position.set(TX,4.2,0); regFrame(ftop);
+  const postGeo=new THREE.BoxGeometry(0.13,4.2,0.13);
+  [[TX-HW,1.65],[TX+HW,1.65],[TX-HW,-1.65],[TX+HW,-1.65]].forEach(([px,pz])=>{ const post=new THREE.Mesh(postGeo,white); post.position.set(px,2.1,pz); regFrame(post); });
+  const cornerSeam=new THREE.Mesh(new THREE.BoxGeometry(0.05,3.9,0.05),blackEdge); cornerSeam.position.set(TX-HW,2.1,1.65); regFrame(cornerSeam);
+  const rightWall=new THREE.Mesh(new THREE.BoxGeometry(0.14,3.9,3.4),white); rightWall.position.set(TX+HW+0.02,2.1,0); regFrame(rightWall);
+  const backTray=makeBox(HW*2-0.2,3.8,0.12,0x0e1118,{metal:0.5,rough:0.6}); backTray.position.set(TX,2.1,-1.6); regFrame(backTray);
+  const ioPanel=new THREE.Mesh(new THREE.BoxGeometry(0.8,0.16,0.05),white); ioPanel.position.set(TX-0.8,0.4,1.69); regFrame(ioPanel);
+  for(let i=0;i<3;i++){ const btn=new THREE.Mesh(new THREE.BoxGeometry(0.07,0.07,0.04),blackEdge); btn.position.set(TX-1.03+i*0.16,0.4,1.72); regFrame(btn); }
+
+  const glassMat=()=>new THREE.MeshStandardMaterial({color:0x9cc7e6,metalness:0.1,roughness:0.04,transparent:true,opacity:0.16});
+  const gFront=new THREE.Mesh(new THREE.PlaneGeometry(HW*2-0.05,3.9),glassMat()); gFront.position.set(TX,2.1,1.65); glassPanels.push(gFront); scene.add(gFront);
+  const gLeft=new THREE.Mesh(new THREE.PlaneGeometry(3.3,3.9),glassMat()); gLeft.position.set(TX-HW,2.1,0); gLeft.rotation.y=Math.PI/2; glassPanels.push(gLeft); scene.add(gLeft);
+
+  // ===== DETAILED MOTHERBOARD =====
+  const mobo=new THREE.Group();
+  mobo.add(makeBox(1.8,3.0,0.08,0x0b0f16,{metal:0.4,rough:0.7}));
+  const aLine=new THREE.Mesh(new THREE.BoxGeometry(1.7,0.05,0.01),basic(0xe6ebf2)); aLine.position.set(0,-0.25,0.05); mobo.add(aLine);
+  // CPU socket (raised, directly behind cooler block)
+  const socket=makeBox(0.55,0.55,0.06,0x1a1f29,{metal:0.6,rough:0.4}); socket.position.set(-0.1,0.75,0.05); mobo.add(socket);
+  mobo.add(Object.assign(makeBox(0.4,0.4,0.05,0x2a3240,{metal:0.75,rough:0.3}),{})).position.set(-0.1,0.75,0.07);
+  // VRM heatsinks (around raised socket)
+  [[-0.1,1.27],[-0.72,0.75]].forEach(([hx,hy])=>{ const hs=makeBox(0.5,0.34,0.18,0x6b7480,{metal:0.9,rough:0.25}); hs.position.set(hx,hy,0.11); mobo.add(hs); for(let i=0;i<5;i++){ const fin=new THREE.Mesh(new THREE.BoxGeometry(0.5,0.02,0.18),new THREE.MeshStandardMaterial({color:0x99a2b0,metalness:0.9,roughness:0.2})); fin.position.set(hx,hy-0.14+i*0.07,0.11); mobo.add(fin); } });
+  // rear I/O shroud
+  const io=makeBox(0.55,0.5,0.13,0x12161e,{metal:0.6,rough:0.4}); io.position.set(-0.7,1.25,0.09); mobo.add(io);
+  // RAM slots + accent clips (aligned with the RAM module)
+  for(let i=0;i<4;i++){ const slot=makeBox(0.05,1.0,0.12,0x14181f,{metal:0.4,rough:0.5}); slot.position.set(0.35+i*0.15,0.55,0.08); mobo.add(slot); const clip=new THREE.Mesh(new THREE.BoxGeometry(0.05,0.06,0.13),basic(0x38bdf8)); clip.position.set(0.35+i*0.15,1.07,0.08); mobo.add(clip); accentMats.push(clip.material); }
+  // 24-pin ATX
+  const atx=makeBox(0.16,0.7,0.16,0x0e1218,{metal:0.5,rough:0.5}); atx.position.set(0.8,0.25,0.1); mobo.add(atx);
+  // chipset heatsink + glow
+  const chip=makeBox(0.5,0.5,0.14,0x2a2f3a,{metal:0.8,rough:0.3}); chip.position.set(0.0,-0.75,0.1); mobo.add(chip);
+  const chipGlow=new THREE.Mesh(new THREE.BoxGeometry(0.3,0.3,0.01),basic(0x38bdf8)); chipGlow.position.set(0,-0.75,0.18); mobo.add(chipGlow); accentMats.push(chipGlow.material);
+  // M.2 heatsink
+  const m2hs=makeBox(0.85,0.2,0.08,0x3a4150,{metal:0.8,rough:0.3}); m2hs.position.set(-0.1,-0.35,0.08); mobo.add(m2hs);
+  // PCIe slots
+  for(let i=0;i<2;i++){ const pcie=makeBox(1.1,0.06,0.12,0x7a6a2a,{metal:0.6,rough:0.4}); pcie.position.set(-0.1,-1.05-i*0.4,0.08); mobo.add(pcie); }
+  // capacitors
+  for(let i=0;i<6;i++){ const cap=new THREE.Mesh(new THREE.CylinderGeometry(0.03,0.03,0.1,8),new THREE.MeshStandardMaterial({color:0x1a1f29,metalness:0.6,roughness:0.4})); cap.position.set(-0.55+Math.random()*0.35,0.05+Math.random()*0.25,0.09); mobo.add(cap); }
+  register(mobo,v(TX,2.15,-1.45),v(TX,4.5,0.9));
+
+  // ===== GPU — triple-fan, facing front =====
+  const gpu=new THREE.Group();
+  gpu.add(makeBox(1.95,0.95,0.32,0x101620,{metal:0.7,rough:0.35}));
+  const gpuGlow=basic(0x38bdf8); accentMats.push(gpuGlow);
+  const gg=new THREE.Mesh(new THREE.BoxGeometry(1.97,0.06,0.34),gpuGlow); gg.position.y=0.47; gpu.add(gg);
+  for(let i=0;i<3;i++){ const f=makeFan(0.29,0x38bdf8); f.group.rotation.x=Math.PI/2; f.group.position.set(-0.62+i*0.62,0,0.18); gpu.add(f.group); accentMats.push(f.glow); }
+  register(gpu,v(TX,1.45,-0.25),v(-0.9,1.4,2.3));
+
+  // ===== CPU WATER BLOCK (behind) + PUMP/RESERVOIR (in FRONT) =====
+  const cool=new THREE.Group();
+  const block=makeBox(0.55,0.55,0.18,0x0a0d13,{metal:0.85,rough:0.2}); cool.add(block);
+  const blockTop=new THREE.Mesh(new THREE.BoxGeometry(0.4,0.4,0.04),basic(0x38bdf8)); blockTop.position.set(0,0,0.1); cool.add(blockTop); accentMats.push(blockTop.material);
+  const blockRing=new THREE.Mesh(new THREE.TorusGeometry(0.15,0.02,8,28),basic(0x7dd3fc)); blockRing.position.set(0,0,0.12); cool.add(blockRing); accent2Mats.push(blockRing.material);
+  // pump + reservoir to the front-LEFT of the CPU block, clean tube routing
+  const RZ=0.4, RX=-0.7;
+  const pumpBase=new THREE.Mesh(new THREE.CylinderGeometry(0.27,0.29,0.34,28),new THREE.MeshStandardMaterial({color:0x0c0f15,metalness:0.7,roughness:0.3})); pumpBase.position.set(RX,-0.58,RZ); cool.add(pumpBase);
+  const resGlass=new THREE.Mesh(new THREE.CylinderGeometry(0.25,0.25,1.0,28,1,true),new THREE.MeshStandardMaterial({color:0xbfe0f0,metalness:0.1,roughness:0.05,transparent:true,opacity:0.22,side:THREE.DoubleSide})); resGlass.position.set(RX,0.0,RZ); cool.add(resGlass);
+  const resLiq=new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.22,0.88,28),new THREE.MeshBasicMaterial({color:0x38bdf8,transparent:true,opacity:0.82})); resLiq.position.set(RX,-0.04,RZ); cool.add(resLiq); accentMats.push(resLiq.material);
+  const resCap=new THREE.Mesh(new THREE.CylinderGeometry(0.27,0.27,0.13,28),new THREE.MeshStandardMaterial({color:0x0c0f15,metalness:0.7,roughness:0.3})); resCap.position.set(RX,0.55,RZ); cool.add(resCap);
+  for(let i=0;i<14;i++){ const b=new THREE.Mesh(new THREE.SphereGeometry(0.012+Math.random()*0.016,6,6),new THREE.MeshBasicMaterial({color:0xd6f0fb,transparent:true,opacity:0.75})); const ang=Math.random()*Math.PI*2,rd=Math.random()*0.17; b.position.set(RX+Math.cos(ang)*rd,-0.4+Math.random()*0.78,RZ+Math.sin(ang)*rd); cool.add(b); bubbles.push({b,speed:0.12+Math.random()*0.22}); }
+  const tubeMat=new THREE.MeshStandardMaterial({color:0x38bdf8,metalness:0.15,roughness:0.22,transparent:true,opacity:0.9}); accentMats.push(tubeMat);
+  function hardTube(pts){ const c=new THREE.CatmullRomCurve3(pts); return new THREE.Mesh(new THREE.TubeGeometry(c,40,0.05,12,false),tubeMat); }
+  function fitting(x,y,z){ const m=new THREE.Mesh(new THREE.CylinderGeometry(0.065,0.065,0.1,16),chrome()); m.position.set(x,y,z); return m; }
+  cool.add(hardTube([v(-0.2,0.22,0.12),v(-0.45,0.45,0.28),v(RX,0.5,RZ)]));      // block top -> reservoir top
+  cool.add(hardTube([v(RX,-0.55,RZ),v(-0.5,-0.5,0.28),v(-0.15,-0.2,0.12)]));    // reservoir bottom -> block bottom
+  [[-0.2,0.22,0.12],[RX,0.5,RZ],[RX,-0.55,RZ],[-0.15,-0.2,0.12]].forEach(p=>cool.add(fitting(p[0],p[1],p[2])));
+  register(cool,v(TX-0.1,2.9,-1.28),v(3.9,2.7,1.8));
+
+  // ===== TOP CASE FANS (black, laid flat under the top panel) =====
+  const topFans=new THREE.Group();
+  for(let i=0;i<3;i++){ const tf=makeTopFan(0.46); tf.rotation.x=Math.PI; tf.position.set(-0.98+i*0.98,0,0); topFans.add(tf); }
+  register(topFans,v(TX,3.95,-0.1),v(TX,5.4,-0.1));
+
+  // ===== RAM =====
+  const ram=new THREE.Group();
+  for(let i=0;i<4;i++){
+    const x=-0.225+i*0.15;
+    const stick=makeBox(0.08,1.15,0.4,0x0d1018,{metal:0.6,rough:0.4}); stick.position.set(x,0,0); ram.add(stick);
+    const sMat=basic(0x38bdf8); accentMats.push(sMat);
+    const stripM=new THREE.Mesh(new THREE.BoxGeometry(0.06,1.05,0.03),sMat); stripM.position.set(x,0,0.21); ram.add(stripM);
+    const dMat=new THREE.MeshBasicMaterial({color:0x7dd3fc,transparent:true,opacity:1}); accent2Mats.push(dMat);
+    const drop=new THREE.Mesh(new THREE.BoxGeometry(0.08,0.13,0.04),dMat); drop.position.set(x,0.4,0.215); ram.add(drop);
+    raindrops.push({drop,top:0.48,bottom:-0.48,phase:i*0.35});
+  }
+  register(ram,v(TX+0.575,2.72,-1.15),v(-0.6,3.0,1.5));
+
+  // ===== M.2 NVMe SSD (modern, labeled) =====
+  const m2=new THREE.Group();
+  m2.add(makeBox(0.98,0.24,0.03,0x0a4d33,{metal:0.3,rough:0.7}));  // green PCB
+  const m2canvas=document.createElement('canvas'); m2canvas.width=1024; m2canvas.height=300; drawM2(m2canvas.getContext('2d'));
+  const m2tex=new THREE.CanvasTexture(m2canvas);
+  const m2label=new THREE.Mesh(new THREE.PlaneGeometry(0.8,0.23),new THREE.MeshStandardMaterial({map:m2tex,metalness:0.25,roughness:0.55})); m2label.position.set(0.08,0,0.018); m2.add(m2label);
+  // gold edge connector + finger gaps + key notch
+  const conn=new THREE.Mesh(new THREE.BoxGeometry(0.11,0.2,0.03),new THREE.MeshStandardMaterial({color:0xcaa23c,metalness:0.95,roughness:0.3})); conn.position.set(-0.43,0,0.004); m2.add(conn);
+  for(let i=0;i<7;i++){ const gp=new THREE.Mesh(new THREE.BoxGeometry(0.006,0.18,0.035),new THREE.MeshStandardMaterial({color:0x0a4d33})); gp.position.set(-0.47+i*0.016,0,0.012); m2.add(gp); }
+  const notch=new THREE.Mesh(new THREE.BoxGeometry(0.03,0.09,0.04),new THREE.MeshStandardMaterial({color:0x04060c})); notch.position.set(-0.355,0.075,0.01); m2.add(notch);
+  register(m2,v(TX-0.2,0.95,-1.33),v(3.9,1.0,1.6));
+
+  // ===== PSU =====
+  register(makeBox(1.7,0.7,2.0,0x0a0e16,{metal:0.7,rough:0.4}),v(TX,0.6,-0.5),v(TX,-0.9,2.2));
+
+  applyTheme(THEMES.find(t=>t.name===(loadThemeName()||'Midnight Blue'))||THEMES[0]);
+  ready=true; animate();
+}
+
+function drawScreen(){
+  const ctx=screenCtx,w=screenCanvas.width,h=screenCanvas.height,a=curAccent;
+  const g=ctx.createLinearGradient(0,0,0,h); g.addColorStop(0,'#0a1428'); g.addColorStop(1,'#04060c'); ctx.fillStyle=g; ctx.fillRect(0,0,w,h);
+  ctx.strokeStyle='rgba(255,255,255,0.05)'; ctx.lineWidth=1;
+  for(let x=0;x<w;x+=40){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke(); }
+  for(let y=0;y<h;y+=40){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke(); }
+  ctx.fillStyle='#eef2ff'; ctx.font='800 88px Segoe UI, Arial'; ctx.textAlign='center'; ctx.fillText('JUSTIN BRADEN',w/2,h/2-10);
+  ctx.fillStyle=a; ctx.fillRect(w/2-150,h/2+25,300,5);
+  ctx.fillStyle='#93a0c0'; ctx.font='600 34px Segoe UI, Arial'; ctx.fillText('// IT · NETWORKS · SECURITY',w/2,h/2+90);
+  if(screenTex) screenTex.needsUpdate=true;
+}
+
+function drawM2(ctx){
+  const w=1024,h=300;
+  const g=ctx.createLinearGradient(0,0,0,h); g.addColorStop(0,'#1c1c20'); g.addColorStop(0.5,'#0c0c0f'); g.addColorStop(1,'#161619'); ctx.fillStyle=g; ctx.fillRect(0,0,w,h);
+  ctx.fillStyle='#26262c'; ctx.fillRect(0,0,w,4);
+  ctx.textAlign='left'; ctx.textBaseline='alphabetic';
+  ctx.fillStyle='#cfd3da'; ctx.font='600 30px Arial'; ctx.fillText('NVMe SSD',40,58);
+  ctx.fillStyle='#ffffff'; ctx.font='800 104px Arial'; ctx.fillText('NV-9000',32,158);
+  ctx.fillStyle='#e23b3b'; ctx.font='800 104px Arial'; ctx.fillText('PRO',498,158);
+  ctx.fillStyle='#e23b3b'; ctx.fillRect(36,176,410,6);
+  ctx.fillStyle='#c9cdd4'; ctx.font='600 32px Arial'; ctx.fillText('PCIe 4.0 NVMe M.2 SSD',38,228);
+  ctx.textAlign='right'; ctx.fillStyle='#ffffff'; ctx.font='800 60px Arial'; ctx.fillText('1TB',w-40,222);
+  ctx.textAlign='left'; ctx.fillStyle='#787b83'; ctx.font='500 19px Arial'; ctx.fillText('PORTFOLIO STORAGE  ·  MODEL NV9000  ·  1024 GB',40,h-22);
+}
+
+const KF=[
+  {p:0.00,pos:v(-1.8,2.6,10),  tgt:v(1.3,1.9,0)},
+  {p:0.13,pos:v(4.6,2.8,7.2),  tgt:v(1.7,2.2,0)},
+  {p:0.28,pos:v(1.7,3.4,8.8),  tgt:v(1.7,2.0,-0.3)},
+  {p:0.42,pos:v(-0.7,2.6,4.8), tgt:v(-0.9,1.4,2.3)},
+  {p:0.55,pos:v(3.9,3.4,5.0),  tgt:v(3.9,2.7,1.8)},
+  {p:0.66,pos:v(1.7,4.6,5.0),  tgt:v(1.7,4.5,0.9)},
+  {p:0.77,pos:v(-0.6,3.0,4.8), tgt:v(-0.6,3.0,1.5)},
+  {p:0.88,pos:v(3.9,1.5,5.0),  tgt:v(3.9,1.0,1.6)},
+  {p:1.00,pos:v(1.7,2.6,10.5), tgt:v(1.7,2.0,-0.2)}
+];
+const LABELS=[
+  {at:0.42,i:'01 · THROUGHPUT',n:'Hands-On Support',d:'Three-plus years delivering day-to-day technical support across a district-wide environment — from hardware repair to system deployment.'},
+  {at:0.55,i:'02 · THERMALS',n:'Dependable Under Pressure',d:'Comfortable handling time-sensitive issues and shifting priorities while keeping critical systems stable and online.'},
+  {at:0.66,i:'03 · BACKBONE',n:'Networking & Infrastructure',d:'Led a 15-site migration from Cisco to Juniper networking equipment with minimal downtime, alongside ongoing network administration.'},
+  {at:0.77,i:'04 · MEMORY',n:'Certified & Always Learning',d:'CompTIA Network+ and Security+ certified, with a habit of quickly adopting new tools, systems, and workflows.'},
+  {at:0.88,i:'05 · STORAGE',n:'Saved Work',d:'Where my projects live — built, broken, and rebuilt better. See them →'}
+];
+
+let dispP=0;
+function getScroll(){ const max=document.body.scrollHeight-innerHeight; return max>0?Math.min(1,Math.max(0,scrollY/max)):0; }
+function camAt(p){ let a=KF[0],b=KF[KF.length-1]; for(let i=0;i<KF.length-1;i++){ if(p>=KF[i].p&&p<=KF[i+1].p){a=KF[i];b=KF[i+1];break;} } const s=(b.p-a.p)||1; let t=(p-a.p)/s; t=t<0?0:t>1?1:t; t=t*t*(3-2*t); return {pos:a.pos.clone().lerp(b.pos,t),tgt:a.tgt.clone().lerp(b.tgt,t)}; }
+function band(p,c,h){ const d=Math.abs(p-c); return d>h?0:1-d/h; }
+function setOp(id,o){ document.getElementById(id).style.opacity=o; }
+
+function updateOverlays(p){
+  setOp('hero', p<0.10?1:Math.max(0,1-(p-0.10)/0.04));
+  const headOp=p<0.10?0:Math.min(1,(p-0.10)/0.05);
+  document.getElementById('logo').style.opacity=headOp;
+  document.getElementById('headEmail').style.opacity=headOp;
+  document.getElementById('scrollHint').style.opacity=(p<0.06?1:0);
+  let best=null,bo=0; LABELS.forEach(l=>{ const o=band(p,l.at,0.06); if(o>bo){bo=o;best=l;} });
+  const cl=document.getElementById('compLabel');
+  if(best&&bo>0.02){ document.getElementById('compIndex').textContent=best.i; document.getElementById('compName').textContent=best.n; document.getElementById('compDesc').textContent=best.d; cl.style.opacity=bo; } else cl.style.opacity=0;
+  setOp('resumeCta', p>=0.73?(p<0.84?1:Math.max(0,1-(p-0.84)/0.05)):0);
+  const pr=document.getElementById('projects');
+  if(p>=0.84){ pr.classList.add('shown'); pr.style.opacity=(p<0.97?1:Math.max(0,1-(p-0.97)/0.03)); } else { pr.classList.remove('shown'); pr.style.opacity=0; }
+  setOp('contact', p>=0.95?Math.min(1,(p-0.95)/0.03):0);
+  document.getElementById('progress').style.width=(p*100)+'%';
+}
+
+function animate(){
+  requestAnimationFrame(animate);
+  const dt=clock.getDelta(), t=clock.elapsedTime;
+  dispP+=(getScroll()-dispP)*Math.min(1,dt*6); const p=dispP;
+  const ex=Math.min(1,Math.max(0,(p-0.20)/0.20)); const exE=ex*ex*(3-2*ex);
+  parts.forEach(pt=>pt.obj.position.lerpVectors(pt.home,pt.exploded,exE));
+  caseParts.forEach(pt=>pt.obj.position.lerpVectors(pt.home,pt.exploded,exE));
+  caseMats.forEach(m=>{ m.opacity=Math.max(0,1-exE*1.2); });
+  glassPanels.forEach(g=>{ g.material.opacity=0.16*(1-exE); });
+  fans.forEach((f,i)=>f.rotation.y+=dt*(7+i*0.8));
+  raindrops.forEach(rd=>{ const span=rd.top-rd.bottom; const f=((t*0.5+rd.phase)%1); rd.drop.position.y=rd.top-f*span; rd.drop.material.opacity=0.25+0.75*(1-f); });
+  bubbles.forEach(bb=>{ bb.b.position.y+=dt*bb.speed; if(bb.b.position.y>1.3) bb.b.position.y=0.45; });
+  const c=camAt(p); camera.position.lerp(c.pos,Math.min(1,dt*5)); camera.lookAt(c.tgt);
+  updateOverlays(p); renderer.render(scene,camera);
+}
+addEventListener('resize',()=>{ if(!ready)return; camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth,innerHeight); });
+
+/* ===== THEMES ===== */
+const THEMES=[
+  {name:'Midnight Blue',accent:'#38bdf8',accent2:'#7dd3fc',mode:'dark',bg:'radial-gradient(ellipse at 50% 0%,#0a1226 0%,#04060c 60%)',text:'#eef2ff',muted:'#93a0c0',glass:'rgba(13,19,32,0.55)',border:'rgba(255,255,255,0.1)',fog:0x04060c},
+  {name:'Obsidian Orange',accent:'#f97316',accent2:'#fdba74',mode:'dark',bg:'radial-gradient(ellipse at 50% 0%,#1a0e05 0%,#0a0603 60%)',text:'#fdf4ec',muted:'#b59880',glass:'rgba(26,16,8,0.6)',border:'rgba(255,255,255,0.1)',fog:0x0a0603},
+  {name:'Emerald',accent:'#10d98a',accent2:'#6ee7b7',mode:'dark',bg:'radial-gradient(ellipse at 50% 0%,#04140e 0%,#03090a 60%)',text:'#eafff6',muted:'#86a99a',glass:'rgba(8,24,18,0.6)',border:'rgba(255,255,255,0.1)',fog:0x03090a},
+  {name:'Violet',accent:'#a78bfa',accent2:'#c4b5fd',mode:'dark',bg:'radial-gradient(ellipse at 50% 0%,#150f28 0%,#08060f 60%)',text:'#f3effd',muted:'#9b91bf',glass:'rgba(18,14,32,0.6)',border:'rgba(255,255,255,0.1)',fog:0x08060f},
+  {name:'Daylight',accent:'#0284c7',accent2:'#0ea5e9',mode:'light',bg:'radial-gradient(ellipse at 50% 0%,#dbeafe 0%,#eef2ff 60%)',text:'#0f172a',muted:'#475569',glass:'rgba(255,255,255,0.65)',border:'rgba(0,0,0,0.12)',fog:0xdde6f5},
+  {name:'Paper',accent:'#9333ea',accent2:'#a855f7',mode:'light',bg:'radial-gradient(ellipse at 50% 0%,#f3e8ff 0%,#faf5ff 60%)',text:'#1e1b2e',muted:'#5b5470',glass:'rgba(255,255,255,0.7)',border:'rgba(0,0,0,0.1)',fog:0xf0e8fb}
+];
+function applyTheme(t){
+  curAccent=t.accent;
+  const r=document.documentElement.style;
+  r.setProperty('--accent',t.accent); r.setProperty('--accent2',t.accent2);
+  r.setProperty('--text',t.text); r.setProperty('--muted',t.muted); r.setProperty('--glass',t.glass); r.setProperty('--border',t.border);
+  document.body.style.background=t.bg;
+  if(scene){ const ac=new THREE.Color(t.accent), ac2=new THREE.Color(t.accent2);
+    accentMats.forEach(m=>m.color.copy(ac)); accent2Mats.forEach(m=>m.color.copy(ac2)); accentLights.forEach(l=>l.color.copy(ac));
+    if(scene.fog) scene.fog.color.setHex(t.fog); drawScreen(); }
+  try{ localStorage.setItem('jb_theme_name',t.name); }catch(e){}
+}
+function loadThemeName(){ try{ return localStorage.getItem('jb_theme_name'); }catch(e){ return null; } }
+function buildThemeUI(){
+  const dg=document.getElementById('darkGrid'), lg=document.getElementById('lightGrid');
+  THEMES.forEach(t=>{ const b=document.createElement('button'); b.className='tp-swatch';
+    b.innerHTML=`<span class="tp-dot" style="background:linear-gradient(135deg,${t.accent2},${t.accent})"></span>${t.name}`;
+    b.onclick=()=>applyTheme(t); (t.mode==='dark'?dg:lg).appendChild(b); });
+}
+function openTP(){ document.getElementById('tp').classList.add('open'); document.getElementById('tpOverlay').classList.add('open'); }
+function closeTP(){ document.getElementById('tp').classList.remove('open'); document.getElementById('tpOverlay').classList.remove('open'); }
+
+/* ===== TYPING ===== */
+function initTyping(){
+  const el=document.getElementById('typingText');
+  const titles=['Computer Technician','IT Specialist','CompTIA Network+ Certified','CompTIA Security+ Certified'];
+  let ti=0,ci=0,del=false;
+  (function tick(){ const w=titles[ti];
+    if(!del){ el.textContent=w.slice(0,++ci); if(ci===w.length){ setTimeout(()=>{del=true;tick();},1700); return; } setTimeout(tick,75); }
+    else { el.textContent=w.slice(0,--ci); if(ci===0){ del=false; ti=(ti+1)%titles.length; setTimeout(tick,260); return; } setTimeout(tick,40); } })();
+}
+
+/* ===== RESUME PDF ===== */
+function downloadResume(){
+  try{
+    const { jsPDF }=window.jspdf; const doc=new jsPDF({unit:'pt',format:'letter'});
+    const M=54; let y=58; const pw=doc.internal.pageSize.getWidth(); const blue=[14,93,165];
+    doc.setFont('helvetica','bold'); doc.setFontSize(24); doc.setTextColor(20,20,20); doc.text('Justin Braden',M,y);
+    doc.setFont('helvetica','normal'); doc.setFontSize(12); doc.setTextColor(...blue); y+=20; doc.text('Computer Technician',M,y);
+    doc.setFontSize(9.5); doc.setTextColor(80,80,80); y+=16; doc.text('Justinbraden99@gmail.com  |  Lake City, FL',M,y);
+    y+=10; doc.setDrawColor(...blue); doc.setLineWidth(1.2); doc.line(M,y,pw-M,y);
+    function heading(t){ y+=24; doc.setFont('helvetica','bold'); doc.setFontSize(11.5); doc.setTextColor(...blue); doc.text(t.toUpperCase(),M,y); y+=4; doc.setDrawColor(210,210,210); doc.setLineWidth(.6); doc.line(M,y,pw-M,y); y+=12; }
+    function para(t){ doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor(60,60,60); const l=doc.splitTextToSize(t,pw-M*2); doc.text(l,M,y); y+=l.length*12; }
+    function role(t,o,d){ doc.setFont('helvetica','bold'); doc.setFontSize(10.5); doc.setTextColor(25,25,25); y+=4; doc.text(t,M,y); doc.setFont('helvetica','italic'); doc.setFontSize(9); doc.setTextColor(110,110,110); doc.text(d,pw-M,y,{align:'right'}); y+=13; doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor(...blue); doc.text(o,M,y); y+=6; }
+    function bullet(t){ doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor(60,60,60); const l=doc.splitTextToSize(t,pw-M*2-14); doc.text('•',M+4,y+9); doc.text(l,M+16,y+9); y+=l.length*11.5+2; }
+    heading('Professional Summary');
+    para('Results-driven Computer Technician certified in CompTIA Network+ and Security+, with a strong foundation in network administration, system security, and troubleshooting. Experienced delivering secure, efficient IT solutions with minimal downtime, backed by proven leadership and customer-service skills.');
+    heading('Skills');
+    para('Network Administration  •  System Security  •  CompTIA Network+  •  CompTIA Security+  •  Cisco & Juniper  •  Infrastructure Deployment  •  RMM / Remote Support  •  Windows & Linux  •  Hardware Repair  •  Ticketing Systems');
+    heading('Certifications'); para('CompTIA Network+   |   CompTIA Security+');
+    heading('Work Experience');
+    role('Computer Technician','Columbia County School District — Lake City, FL','Oct 2022 – Present');
+    bullet('Troubleshoot and repair computers, mobile devices, servers, network equipment, and peripherals.');
+    bullet('Install, configure, and maintain operating systems, software, and hardware.');
+    bullet('Led migration from Cisco to Juniper equipment across 15 sites with minimal downtime.');
+    bullet('Provide remote support via RMM software and document issues through ticketing systems.'); y+=6;
+    role('Assistant Restaurant Manager','Red Lobster — Lake City, FL','Nov 2022 – Jan 2023');
+    bullet('Managed daily operations, finances, inventory, and team coordination under pressure.'); y+=6;
+    role('Certified Nursing Assistant','Parklands Care Center — Gainesville, FL','Jun 2020 – Nov 2022');
+    bullet('Delivered detail-oriented patient care; monitored and documented patient conditions.'); y+=6;
+    role('Floor Staff','Regal Cinema 90 — Lake City, FL','May 2017 – Jun 2020');
+    bullet('Operated cash systems and maintained accurate transaction records.');
+    heading('Education'); para('Columbia High School — 2017');
+    heading('References'); para('Available upon request.');
+    doc.save('Justin_Braden_Resume.pdf');
+  }catch(e){ alert('Could not generate PDF.'); }
+}
+function copyEmail(){ navigator.clipboard.writeText('Justinbraden99@gmail.com').then(()=>{ const b=document.getElementById('copyBtn'); b.textContent='Copied! ✓'; b.classList.add('copied'); setTimeout(()=>{ b.textContent='Copy Email'; b.classList.remove('copied'); },2000); }); }
+
+function boot(){
+  buildThemeUI();
+  let prog=0; const fill=document.getElementById('loaderFill');
+  const iv=setInterval(()=>{ prog+=Math.random()*22; if(prog>=100){ prog=100; clearInterval(iv); setTimeout(()=>document.getElementById('loader').classList.add('hide'),350); } fill.style.width=prog+'%'; },140);
+  buildScene(); initTyping();
+}
+window.addEventListener('load',boot);
+</script>
+</body>
+</html>
